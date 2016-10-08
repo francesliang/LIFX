@@ -51,9 +51,9 @@ class OlympicsMedals:
         return False
 
 
-def medal_light_indicator(light):
+def medal_light_indicator(light, token):
 
-    lifx =LifxHTTP('c0492e3e21a516eadc3d0d6166515e11423e294a431fcc4630a978d2d01e108b')
+    lifx =LifxHTTP(token)
     medals = OlympicsMedals()
 
     #medals.get_medal_info()
