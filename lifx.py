@@ -1,3 +1,5 @@
+import sys
+import json
 import requests
 import traceback
 
@@ -13,7 +15,7 @@ class LifxHTTP:
             "Authorization": "Bearer %s" % self.token,
         }
 
-    def request_base(self, req_type, selector, selector_val=None, func='', payload=None):
+    def request_base(self, req_type, selector='light', selector_val=None, func='', payload=None):
         if selector_val:
             url = self.base_url + Selectors.get(selector, 'all') + ':' + selector_val + '/' + func
         else:
@@ -36,99 +38,80 @@ class LifxHTTP:
                 print results
         return False
 
-    def get_status(self, selector, selector_val=None):
-        try:
-            response = self.request_base('get', selector, selector_val)
-            return response
-        except Exception as e:
-            print "Error at get_status %s" % e
-            traceback.print_exc()
-            return []
+    def get_status(self, selector='light', selector_val=None):
+        response = self.request_base('get', selector, selector_val)
+        return response
 
-    def set_state(self, selector, state, state_val, selector_val=None):
+    def set_state(self, state, state_val, selector='light', selector_val=None):
         # state - power, color, brightness, duration
-        try:
-            func = 'state'
-            payload = {
-                state: state_val,
-            }
-            response = self.request_base('put', selector, selector_val, func, payload)
-            return self.check_results(response)
-        except Exception as e:
-            print "Error at set_state %s" % e
-            traceback.print_exc()
-            return False
+        func = 'state'
+        payload = {
+            state: state_val,
+        }
+        response = self.request_base('put', selector, selector_val, func, payload)
+        return self.check_results(response)
 
-    def toggle_power(self, selector, selector_val=None, duration=1.0):
-        try:
-            func = 'toggle'
-            payload = {
-                'duration': str(duration),
-            }
-            response = self.request_base('post', selector, selector_val, func, payload)
-            return self.check_results(response)
-        except Exception as e:
-            print "Error at toggle_power %s" % e
-            traceback.print_exc()
-            return False
+    def toggle_power(self, selector='light', selector_val=None, duration=1.0):
 
-    def set_breathe_effect(self, selector, color, selector_val=None, from_color=None, period=1.0, cycles=1.0,
+        func = 'toggle'
+        payload = {
+            'duration': str(duration),
+        }
+        response = self.request_base('post', selector, selector_val, func, payload)
+        return self.check_results(response)
+
+    def set_breathe_effect(self, color, selector='light', selector_val=None, from_color=None, period=1.0, cycles=1.0,
                           persist=False, power_on=True, peak=0.5):
-        try:
-            func = 'effects/breathe'
-            payload = {
-                'color': color,
-                'from_color': from_color,
-                'period': period,
-                'cycles': cycles,
-                'persist': persist,
-                'power_on': power_on,
-                'peak': peak,
-            }
-            response = self.request_base('post', selector, selector_val, func, payload)
-            return self.check_results(response)
-        except Exception as e:
-            print "Error at set_breathe_effect %s" % e
-            traceback.print_exc()
-            return False
 
-    def set_pulse_effect(self, selector, color, selector_val=None, from_color=None, period=1.0, cycles=1.0,
+        func = 'effects/breathe'
+        payload = {
+            'color': color,
+            'from_color': from_color,
+            'period': period,
+            'cycles': cycles,
+            'persist': persist,
+            'power_on': power_on,
+            'peak': peak,
+        }
+        response = self.request_base('post', selector, selector_val, func, payload)
+        return self.check_results(response)
+
+    def set_pulse_effect(self, color, selector='light', selector_val=None, from_color=None, period=1.0, cycles=1.0,
                           persist=False, power_on=True):
-        try:
-            func = 'effects/pulse'
-            payload = {
-                'color': color,
-                'from_color': from_color,
-                'period': period,
-                'cycles': cycles,
-                'persist': persist,
-                'power_on': power_on,
-            }
-            response = self.request_base('post', selector, selector_val, func, payload)
-            return self.check_results(response)
-        except Exception as e:
-            print "Error at set_pulse_effect %s" % e
-            traceback.print_exc()
-            return False
+
+        func = 'effects/pulse'
+        payload = {
+            'color': color,
+            'from_color': from_color,
+            'period': period,
+            'cycles': cycles,
+            'persist': persist,
+            'power_on': power_on,
+        }
+        response = self.request_base('post', selector, selector_val, func, payload)
+        return self.check_results(response)
 
     def validate_color(self, color_string):
-        try:
-            url = 'https://api.lifx.com/v1/color'
-            payload = {
-                'string': color_string,
-            }
-            response = requests.get(url, data=payload, headers=self.headers)
-            return response
-        except Exception as e:
-            print "Error at validate_color %s" % e
-            traceback.print_exc()
-            return []
+
+        url = 'https://api.lifx.com/v1/color'
+        payload = {
+            'string': color_string,
+        }
+        response = requests.get(url, data=payload, headers=self.headers)
+        return response
+
 
     #TODO
     # set states
     # scenes
 
+if __name__ == '__main__':
 
+    token = sys.argv[1]
+
+    lifx = LifxHTTP(token)
+    #lifx.set_breathe_effect('light', 'purple', selector_val='Bedroom', cycles=5)
+    print json.dumps(lifx.get_status('all'), indent=4)
 
 
 
