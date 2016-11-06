@@ -12,7 +12,7 @@ class LifeBulb:
 		self.lifx = LifxHTTP(lifx_token)
 
 	### Weather indicator
-	def indicate_weather(self, key, light='Bedroom', city='Brisbane', max_temp=30, precip_prob=0.5, precip_type='rain'):
+	def indicate_weather(self, key, light='Bedroom', city='Brisbane', temp_thresh=30, precip_thresh=0.5, precip_type='rain'):
 		forecastIO = ForecastIO(key)
 		forecastIO.get_weather_data(city)
 		today = forecastIO.get_daily_weather().get(datetime.now().strftime(forecastIO.date_format()))
@@ -20,10 +20,12 @@ class LifeBulb:
 		if today:
 			color1 = 'white'
 			color2 = 'white'
-			if today.get('temperatureMax', 0) > max_temp:
-				color1 = 'red'
-			if today.get('precipProbability', 0.0) > precip_prob and today.get('precipType', '') == precip_type:
-				color2 = 'blue'
+			temp = today.get('temperatureMax', 0)
+			precip = today.get('precipProbability', 0.0) 
+			if  temp > temp_thresh:
+				color1 = 'rgb:255,0,0 brightness:0.75 saturation:' + str(float(temp)/temp_thresh-0.4)
+			if precip > precip_thresh and today.get('precipType', '') == precip_type:
+				color2 = 'rgb:0,0,255 brightness:0.75 saturation:' + str(precip)
 
 			self.lifx.set_pulse_effect(color1, selector='light', selector_val=light, from_color=color2, period=1.0, cycles=10.0,
 	                          persist=False, power_on=True)
@@ -37,6 +39,12 @@ class LifeBulb:
 		if today.month == occasion.month and today.day == occasion.day:
 			self.lifx.set_pulse_effect(colour_1, selector='light', selector_val=light, from_color=colour_2, period=1.0, cycles=10.0,
 		                          persist=False, power_on=True)
+
+	def set_special_occasion():
+		'''
+		Set a defined scene for special occasion.
+		'''
+		return
 
 
 
