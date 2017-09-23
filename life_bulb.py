@@ -3,7 +3,7 @@ import sys
 from datetime import datetime
 
 from lifx import LifxHTTP
-from forecast_io import ForecastIO
+from utils.forecast_io import ForecastIO
 
 class LifeBulb:
 
@@ -21,7 +21,7 @@ class LifeBulb:
 			color1 = 'white'
 			color2 = 'white'
 			temp = today.get('temperatureMax', 0)
-			precip = today.get('precipProbability', 0.0) 
+			precip = today.get('precipProbability', 0.0)
 			if  temp > temp_thresh:
 				color1 = 'rgb:255,0,0 brightness:0.75 saturation:' + str(float(temp)/temp_thresh-0.4)
 			if precip > precip_thresh and today.get('precipType', '') == precip_type:
