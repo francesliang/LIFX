@@ -1,9 +1,11 @@
 import os
 import sys
 from datetime import datetime
+import time
 
 from lifx import LifxHTTP
 from utils.forecast_io import ForecastIO
+from utils.detect_network import check_device_in_net_nmap
 
 class LifeBulb:
 
@@ -40,12 +42,21 @@ class LifeBulb:
 			self.lifx.set_pulse_effect(colour_1, selector='light', selector_val=light, from_color=colour_2, period=1.0, cycles=10.0,
 		                          persist=False, power_on=True)
 
-	def set_special_occasion():
-		'''
-		Set a defined scene for special occasion.
-		'''
-		return
+	
+	### Turn on lounge light when home after sun-set
+	def return_home_light(self, mac_addr, start_hour=18, light='LivingRoom1'):
+		start_t = time.time()
+		end_t = start_t
+		t_thresh = 180
 
+		while not check_device_in_net_nmap(mac_addr):
+			end_t = time.time()
+
+		t_now = datetime.now().time().hour
+		if t_now >= start_time:
+			if check_device_in_net_nmap and (end_t-start_t)>t_thresh:
+				self.set_state('power', 1, selector_val=light)
+		
 
 
 if __name__ == '__main__':
